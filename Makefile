@@ -1,2 +1,2 @@
 main: main.c
-	clang main.c -o main
+	clang main.c -g -o main
