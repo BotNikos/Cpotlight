@@ -1,0 +1,45 @@
+#+TITLE: Cpotlight
+#+Author: BotNikos
+
+* What is it?
+This project is MacOs Spotlight analogue for linux
+written in C
+
+* What it can do
+** Start programms
+Just write programm name you want to start and it'll start
+
+** Open browser link
+If you use prefix like this:
+
+#+begin_src bash
+  Enter your command:
+  b;<your_link>
+#+end_src
+
+brave browser will open with <your_link> tab
+
+** Search things in brave browser
+Like the example before you need to use 'bs' prefix:
+
+#+begin_src bash
+  Enter your command:
+  bs;<your_link>
+#+end_src
+
+* How to install
+To install this programm you need to do following
+commands in your terminal:
+
+#+begin_src bash
+  git clone https://github.com/BotNikos/Cpotlight.git
+  cd Cpotlight
+  make 
+#+end_src
+
+After that you can start programm:
+
+#+begin_src bash
+  ./cpotlight
+#+end_src
+
