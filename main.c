@@ -3,46 +3,40 @@
 #include <string.h>
 #include <unistd.h>
 
-// TODO:
-// Запускать программы через exec, вместо system
-// для того, чтобы запустить программу таким образом
-// нужно передеать ей в качестве аргумента строковой
-// литерал, а не массив символов
-
-int main () {
-    char command [128];
+int main (void) {
     char userInput [128];
 
-    char *path = getenv ("PATH");
-    char *tempPath = strtok (path, ":");
-    char *pathSplited [128];
+    // INFO:
+    // $PATH analyzing braks execlp ¯\_(ツ)_/¯ 
 
-    int pathCount = 0;
-    while (tempPath != NULL) {
-        pathSplited [pathCount] = tempPath;
-        tempPath = strtok (NULL, ":");
-        pathCount++;
-    }
+    /* char *path = getenv ("PATH"); */
+    /* char *tempPath = strtok (path, ":");
+    /* char *pathSplited [128]; */
+
+    /* int pathCount = 0; */
+    /* while (tempPath != NULL) { */
+    /*     pathSplited [pathCount] = tempPath; */
+    /*     tempPath = strtok (NULL, ":"); */
+    /*     pathCount++; */
+    /* } */
 
     puts ("Enter your command:");
     fgets (userInput, sizeof (userInput), stdin);
 
-    char *prefix = strtok (userInput, ";");
-    char *noPrefUserInput = strtok (NULL, ";");
+    char *userInputTrimmed = strtok (userInput, "\n");
+    char *prefix = strtok (userInputTrimmed, ";");
+    char *command = strtok (NULL, ";");
 
-    if (strcmp (prefix, "b") == 0) {
-        sprintf (command, "/bin/sh /usr/bin/brave %s", noPrefUserInput);
-        system (command);
-    } else if (strcmp (prefix, "bs") == 0) {
-        sprintf (command, "/bin/sh /usr/bin/brave https://google.com/search?q='%s'", noPrefUserInput);
-        system (command);
-    } else {
-        for (int i = 0; i < pathCount; i++) {
-            sprintf (command, "%s/%s", pathSplited [i], userInput);
-            printf ("%s", command);
-            system (command);
-        }
-    }
+    if (strcmp (prefix, "b") == 0)
+        execlp ("brave", "", command);
 
-    return 0;
+    else if (strcmp (prefix, "bs") == 0) {
+        char searchQuery [128];
+        sprintf (searchQuery, "https://google.com/search?q=%s", command);
+        execlp ("brave", "", searchQuery);
+
+    } else 
+        execlp (userInputTrimmed, NULL);
+
+    return EXIT_SUCCESS;
 }
