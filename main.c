@@ -9,8 +9,8 @@ int main (void) {
     // INFO:
     // $PATH analyzing braks execlp ¯\_(ツ)_/¯ 
 
-    /* char *path = getenv ("PATH"); */
-    /* char *tempPath = strtok (path, ":");
+    /* char *path = getenv ("PATH");  */
+    /* char *tempPath = strtok (path, ":"); */
     /* char *pathSplited [128]; */
 
     /* int pathCount = 0; */
@@ -35,6 +35,10 @@ int main (void) {
         sprintf (searchQuery, "https://google.com/search?q=%s", command);
         execlp ("brave", "", searchQuery);
 
+    } else if (strcmp (prefix, "c") == 0) {
+        char calcCmd [30];
+        sprintf (calcCmd, "BEGIN {print %s}", command);
+        execlp ("awk", "", calcCmd, NULL);
     } else 
         execlp (userInputTrimmed, NULL);
 
