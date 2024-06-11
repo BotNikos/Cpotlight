@@ -27,6 +27,15 @@ Like the example before you need to use 'bs' prefix:
   bs;<your_link>
 #+end_src
 
+** Calculation
+Perform simple mathematical calculations
+using prefix 'c'
+
+#+begin_src bash
+  Enter your command:
+  c;<calculations>
+#+end_src
+
 * How to install
 To install this programm you need to do following
 commands in your terminal:
