@@ -29,7 +29,7 @@ Like the example before you need to use 'bs' prefix:
 
 ** Calculation
 Perform simple mathematical calculations
-using prefix 'c'
+using prefix 'c':
 
 #+begin_src bash
   Enter your command:
