@@ -3,22 +3,20 @@
 #include <string.h>
 #include <unistd.h>
 
+void browserQuery (char *command) {
+    char searchQuery [128];
+    sprintf (searchQuery, "https://google.com/search?q=%s", command);
+    execlp ("brave", "", searchQuery);
+}
+
+void calcualte (char *command) {
+    char calcCmd [30];
+    sprintf (calcCmd, "BEGIN {print %s}", command);
+    execlp ("awk", "", calcCmd, NULL);
+}
+
 int main (void) {
     char userInput [128];
-
-    // INFO:
-    // $PATH analyzing braks execlp ¯\_(ツ)_/¯ 
-
-    /* char *path = getenv ("PATH");  */
-    /* char *tempPath = strtok (path, ":"); */
-    /* char *pathSplited [128]; */
-
-    /* int pathCount = 0; */
-    /* while (tempPath != NULL) { */
-    /*     pathSplited [pathCount] = tempPath; */
-    /*     tempPath = strtok (NULL, ":"); */
-    /*     pathCount++; */
-    /* } */
 
     puts ("Enter your command:");
     fgets (userInput, sizeof (userInput), stdin);
@@ -30,16 +28,13 @@ int main (void) {
     if (strcmp (prefix, "b") == 0)
         execlp ("brave", "", command);
 
-    else if (strcmp (prefix, "bs") == 0) {
-        char searchQuery [128];
-        sprintf (searchQuery, "https://google.com/search?q=%s", command);
-        execlp ("brave", "", searchQuery);
+    else if (strcmp (prefix, "bs") == 0) 
+        browserQuery(command);
 
-    } else if (strcmp (prefix, "c") == 0) {
-        char calcCmd [30];
-        sprintf (calcCmd, "BEGIN {print %s}", command);
-        execlp ("awk", "", calcCmd, NULL);
-    } else 
+    else if (strcmp (prefix, "c") == 0) 
+        calcualte(command);
+
+    else
         execlp (userInputTrimmed, NULL);
 
     return EXIT_SUCCESS;
