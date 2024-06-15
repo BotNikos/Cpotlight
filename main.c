@@ -3,16 +3,32 @@
 #include <string.h>
 #include <unistd.h>
 
+const char *browser = "brave"; // Change browser, require recompilation
+
 void browserQuery (char *command) {
     char searchQuery [128];
     sprintf (searchQuery, "https://google.com/search?q=%s", command);
-    execlp ("brave", "", searchQuery);
+    execlp (browser, "", searchQuery, NULL);
 }
 
 void calcualte (char *command) {
     char calcCmd [30];
     sprintf (calcCmd, "BEGIN {print %s}", command);
     execlp ("awk", "", calcCmd, NULL);
+}
+
+void startProcess (char *prefix, char *command, char *userInputTrimmed) {
+    if (strcmp (prefix, "b") == 0)
+        execlp ("brave", "", command);
+
+    else if (strcmp (prefix, "bs") == 0) 
+        browserQuery(command);
+
+    else if (strcmp (prefix, "c") == 0) 
+        calcualte(command);
+
+    else
+        execlp (userInputTrimmed, NULL);
 }
 
 int main (void) {
@@ -25,17 +41,13 @@ int main (void) {
     char *prefix = strtok (userInputTrimmed, ";");
     char *command = strtok (NULL, ";");
 
-    if (strcmp (prefix, "b") == 0)
-        execlp ("brave", "", command);
+    int process = fork ();
 
-    else if (strcmp (prefix, "bs") == 0) 
-        browserQuery(command);
+    if (process == 0) {
+        startProcess (prefix, command, userInputTrimmed);
+    } else
+        getchar (); // Wait user input before exit
 
-    else if (strcmp (prefix, "c") == 0) 
-        calcualte(command);
-
-    else
-        execlp (userInputTrimmed, NULL);
 
     return EXIT_SUCCESS;
 }
