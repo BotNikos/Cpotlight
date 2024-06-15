@@ -9,18 +9,34 @@ written in C
 ** Start programms
 Just write programm name you want to start and it'll start
 
-** Open browser link
-If you use prefix like this:
+
+** Open browser link and search queries
+
+You can select your preffered browser
+
+#+begin_src C
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string.h>
+  #include <unistd.h>
+
+  const char *browser = "Your browser here"; // Change your browser
+
+  void browserQuery (char *command) {
+      char searchQuery [128];
+      sprintf (searchQuery, "https://google.com/search?q=%s", command);
+  // next code
+
+#+end_src
+
+After that you can use prefix 'b' to open links in your browser:
 
 #+begin_src bash
   Enter your command:
   b;<your_link>
 #+end_src
 
-brave browser will open with <your_link> tab
-
-** Search things in brave browser
-Like the example before you need to use 'bs' prefix:
+And 'bs' prefix for execute search queries:
 
 #+begin_src bash
   Enter your command:
