@@ -6,21 +6,17 @@ This project is MacOs Spotlight analogue for linux
 written in C
 
 * Usage
-| prefix    | description        | example       |
-|-----------+--------------------+---------------|
-| no prefix | Start application  | firefox       |
-|-----------+--------------------+---------------|
-| b         | Start browser      | b;google.com  |
-|           | with opened link   |               |
-|-----------+--------------------+---------------|
-| bs        | Search query in    | bs;Best linux |
-|           | browser            | distro        |
-|-----------+--------------------+---------------|
-| c         | Calcuate           | c;1+3*4       |
-|-----------+--------------------+---------------|
-| t         | Translate word     | t;hello       |
-|           | (only russian and  |               |
-|           | english supported) |               |
+| prefix    | description                                         | example              |
+|-----------+-----------------------------------------------------+----------------------|
+| no prefix | Start application                                   | firefox              |
+|-----------+-----------------------------------------------------+----------------------|
+| b         | Start browser with opened link                      | b;google.com         |
+|-----------+-----------------------------------------------------+----------------------|
+| bs        | Search query in browser                             | bs;Best linux distro |
+|-----------+-----------------------------------------------------+----------------------|
+| c         | Calcuate                                            | c;1+3*4              |
+|-----------+-----------------------------------------------------+----------------------|
+| t         | Translate word (only russian and english supported) | t;hello              |
 
 * Change Browser
 By default this application compiled for brave
