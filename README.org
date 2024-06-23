@@ -5,14 +5,27 @@
 This project is MacOs Spotlight analogue for linux
 written in C
 
-* What it can do
-** Start programms
-Just write programm name you want to start and it'll start
+* Usage
+| prefix    | description        | example       |
+|-----------+--------------------+---------------|
+| no prefix | Start application  | firefox       |
+|-----------+--------------------+---------------|
+| b         | Start browser      | b;google.com  |
+|           | with opened link   |               |
+|-----------+--------------------+---------------|
+| bs        | Search query in    | bs;Best linux |
+|           | browser            | distro        |
+|-----------+--------------------+---------------|
+| c         | Calcuate           | c;1+3*4       |
+|-----------+--------------------+---------------|
+| t         | Translate word     | t;hello       |
+|           | (only russian and  |               |
+|           | english supported) |               |
 
-
-** Open browser link and search queries
-
-You can select your preffered browser
+* Change Browser
+By default this application compiled for brave
+browser queries. You can cahnge that behaviour
+by changing one line of code
 
 #+begin_src C
   #include <stdio.h>
@@ -20,36 +33,13 @@ You can select your preffered browser
   #include <string.h>
   #include <unistd.h>
 
-  const char *browser = "Your browser here"; // Change your browser
+  const char *browser = "brave"; // Change your browser
 
   void browserQuery (char *command) {
       char searchQuery [128];
       sprintf (searchQuery, "https://google.com/search?q=%s", command);
   // next code
 
-#+end_src
-
-After that you can use prefix 'b' to open links in your browser:
-
-#+begin_src bash
-  Enter your command:
-  b;<your_link>
-#+end_src
-
-And 'bs' prefix for execute search queries:
-
-#+begin_src bash
-  Enter your command:
-  bs;<your_link>
-#+end_src
-
-** Calculation
-Perform simple mathematical calculations
-using prefix 'c':
-
-#+begin_src bash
-  Enter your command:
-  c;<calculations>
 #+end_src
 
 * How to install
