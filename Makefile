@@ -10,5 +10,8 @@ processLib: include/process.h lib/process.c bin
 bin:
 	mkdir bin
 
+clean: ./bin
+	rm -rf ./bin
+
 test: test.c
 	clang test.c -g -o test -lcurl -lncurses
