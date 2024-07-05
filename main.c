@@ -8,33 +8,63 @@
 #include "include/process.h"
 
 void drawInputBorder (int maxCol, int margin) {
-    mvaddch (2, margin, '|');
-    mvaddch (2, maxCol - margin, '|');
+    mvaddch (3, margin, '|');
+    mvaddch (3, maxCol - margin, '|');
 
     for (int i = margin; i <= maxCol - margin; i++) {
-        mvaddch (1, i, '-');
-        mvaddch (3, i, '-');
+        mvaddch (2, i, '-');
+        mvaddch (4, i, '-');
     }
 }
 
+void *testThread (void *thread) {
+    struct dt {
+        WINDOW *win;
+        char userInput [128];
+    } *data = (struct dt *) thread;
+
+    while (1 == 1) {
+
+        if (strcmp (data -> userInput, "exit") == 0) {
+            break;
+        }
+
+        mvwprintw (data -> win, 1, 1, "%s", data -> userInput);
+        wrefresh (data -> win);
+        werase (data -> win);
+
+        box (data -> win, 0, 0);
+        sleep (1);
+    }
+}
+
+
 int main (void) {
-    char userInput [128];
     int maxCol, maxRow;
 
     pthread_t thread_id;
+
+    struct thr {
+        WINDOW *win;
+        char userInput [128];
+    } thread;
 
     initscr ();
     raw ();
 
     getmaxyx (stdscr, maxRow, maxCol);
 
-    mvprintw (0, (maxCol / 2) - (strlen ("Enter your command:") / 2), "Enter your command:\n");
+    mvprintw (1, (maxCol / 2) - (strlen ("Enter your command:") / 2), "Enter your command:");
     drawInputBorder(maxCol, 10);
-
     refresh ();
 
-    move (2, 11);
-    getstr (userInput);
+
+    thread.win = newwin (maxRow - 7, maxCol, 7, 0);
+
+    pthread_create (&thread_id, NULL, testThread, (void *) &thread);
+
+    move (3, 11);
+    getstr (thread.userInput);
 
     /* fgets (userInput, sizeof (userInput), stdin); */
 
@@ -49,6 +79,7 @@ int main (void) {
     /* else */
     /*     sleep (1); */
 
+    pthread_exit (NULL);
     endwin ();
 
     return EXIT_SUCCESS;
