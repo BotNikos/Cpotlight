@@ -1,5 +1,5 @@
 main: mainLib processLib
-	clang -o cpotlight bin/main.o bin/process.o -lcurl -lncurses -lpthread
+	clang -g -o cpotlight bin/main.o bin/process.o -lcurl -lncurses -lpthread
 
 mainLib: main.c bin
 	clang -c -g main.c -o bin/main.o

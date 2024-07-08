@@ -7,70 +7,61 @@
 
 #include "include/process.h"
 
-void drawInputBorder (int maxCol, int margin) {
-    mvaddch (3, margin, '|');
-    mvaddch (3, maxCol - margin, '|');
+typedef struct winData {
+    WINDOW * win;
+    char userInput [128];
+} winData;
 
-    for (int i = margin; i <= maxCol - margin; i++) {
-        mvaddch (2, i, '-');
-        mvaddch (4, i, '-');
-    }
-}
+void *parsingThread (void *data) {
 
-void *testThread (void *thread) {
-    struct dt {
-        WINDOW *win;
-        char userInput [128];
-    } *data = (struct dt *) thread;
+    winData *pWin = (winData *) data;
 
     while (1 == 1) {
+        char userInputCopy [128];
+        strcpy (userInputCopy, pWin -> userInput);
 
-        if (strcmp (data -> userInput, "exit") == 0) {
-            break;
-        }
+        char *userInputTrimmed = strtok (userInputCopy, "\n");
+        char *prefix = strtok (userInputTrimmed, ";");
+        char *command = strtok (NULL, ";");
 
-        mvwprintw (data -> win, 1, 1, "%s", data -> userInput);
-        wrefresh (data -> win);
-        werase (data -> win);
+        box (pWin -> win, 0, 0);
 
-        box (data -> win, 0, 0);
+        mvwprintw (pWin -> win, 1, 1, "You wrote: %s", pWin -> userInput);
+        mvwprintw (pWin -> win, 2, 1, "Prefix: %s", prefix);
+        mvwprintw (pWin -> win, 3, 1, "Command: %s", command);
+
+        wrefresh (pWin -> win);
         sleep (1);
+        werase (pWin -> win);
     }
-}
 
+    return 0;
+}
 
 int main (void) {
     int maxCol, maxRow;
-
-    pthread_t thread_id;
-
-    struct thr {
-        WINDOW *win;
-        char userInput [128];
-    } thread;
+    winData parsingWin;
+    memset(parsingWin.userInput, '\0', sizeof (parsingWin.userInput));
 
     initscr ();
     raw ();
+    curs_set(0);
 
     getmaxyx (stdscr, maxRow, maxCol);
 
     mvprintw (1, (maxCol / 2) - (strlen ("Enter your command:") / 2), "Enter your command:");
-    drawInputBorder(maxCol, 10);
     refresh ();
 
+    WINDOW *inputWin = newwin (3, maxCol - 20, 3, 10);
+    box (inputWin, 0, 0);
+    wrefresh(inputWin);
 
-    thread.win = newwin (maxRow - 7, maxCol, 7, 0);
+    pthread_t thread_id;
+    parsingWin.win = newwin (10, maxCol, 7, 0);
+    pthread_create (&thread_id, NULL, parsingThread, (void *) &parsingWin);
 
-    pthread_create (&thread_id, NULL, testThread, (void *) &thread);
+    mvwgetstr (inputWin, 1, 1, parsingWin.userInput);
 
-    move (3, 11);
-    getstr (thread.userInput);
-
-    /* fgets (userInput, sizeof (userInput), stdin); */
-
-    /* char *userInputTrimmed = strtok (userInput, "\n"); */
-    /* char *prefix = strtok (userInputTrimmed, ";"); */
-    /* char *command = strtok (NULL, ";"); */
 
     /* int process = fork (); */
 
@@ -79,7 +70,7 @@ int main (void) {
     /* else */
     /*     sleep (1); */
 
-    pthread_exit (NULL);
+    pthread_cancel (thread_id);
     endwin ();
 
     return EXIT_SUCCESS;
