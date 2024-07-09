@@ -30,6 +30,12 @@ void *parsingThread (void *data) {
         mvwprintw (pWin -> win, 2, 1, "Prefix: %s", prefix);
         mvwprintw (pWin -> win, 3, 1, "Command: %s", command);
 
+        if (command) {
+            char *result = startProcess (prefix, command, userInputTrimmed);
+            mvwprintw (pWin -> win, 4, 1, "Result: %s", result);
+        } else
+            mvwprintw (pWin -> win, 4, 1, "%s", "Type something :)");
+
         wrefresh (pWin -> win);
         sleep (1);
         werase (pWin -> win);
@@ -42,6 +48,8 @@ int main (void) {
     int maxCol, maxRow;
     winData parsingWin;
     memset(parsingWin.userInput, '\0', sizeof (parsingWin.userInput));
+
+    /* sleep (30); */
 
     initscr ();
     raw ();
@@ -61,14 +69,6 @@ int main (void) {
     pthread_create (&thread_id, NULL, parsingThread, (void *) &parsingWin);
 
     mvwgetstr (inputWin, 1, 1, parsingWin.userInput);
-
-
-    /* int process = fork (); */
-
-    /* if (process == 0) */
-    /*     startProcess (prefix, command, userInputTrimmed); */
-    /* else */
-    /*     sleep (1); */
 
     pthread_cancel (thread_id);
     endwin ();

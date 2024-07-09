@@ -13,10 +13,14 @@ void browserQuery (char *command) {
     execlp (browser, "", searchQuery, NULL);
 }
 
-void calcualte (char *command) {
-    char calcCmd [30];
-    sprintf (calcCmd, "BEGIN {print %s}", command);
-    execlp ("awk", "", calcCmd, NULL);
+char *calculate (char *command) {
+    char calcCmd [32];
+    char *result;
+    sprintf (calcCmd, "awk \"BEGIN {print %s}\"", command);
+
+    FILE *calculations = popen (calcCmd, "r");
+    fgets(result, 31, calculations);
+    return result;
 }
 
 size_t translateOutput (char *data, size_t size, size_t nmemb, void *userData) {
@@ -59,15 +63,22 @@ int findElem (char *elem, char *array [], int size) {
     return -1;
 }
 
-void startProcess (char *prefix, char *command, char *userInputTrimmed) {
+char *startProcess (char *prefix, char *command, char *userInputTrimmed) {
+    // int execution = 0 - wait for user to enter a full command
+    // int execution = 1 - execute command in real time
 
-    char *prefixes [] = {"b", "bs", "c", "t"};
+    char *waitPrefixes [] = {"b", "bs"};
+    char *realTimePrefixes [] = {"c", "t"};
 
-    switch (findElem (prefix, prefixes, sizeof (prefixes) / 8)) {
-        case 0: execlp ("brave", "", command); break;
-        case 1: browserQuery(command); break;
-        case 2: calcualte(command); break;
-        case 3: translate (command); break;
-        default: execlp (userInputTrimmed, NULL);
+    /* switch (findElem (prefix, waitPrefixes, sizeof (waitPrefixes) / 8)) { */
+    /*     case 0: execlp ("brave", "", command); break; */
+    /*     case 1: browserQuery(command); break; */
+    /*     default: execlp (userInputTrimmed, NULL); */
+    /* } */
+
+    switch (findElem (prefix, realTimePrefixes, sizeof (realTimePrefixes) / 8)) {
+        case 0: return calculate (command); break;
+        /* case 1: translate (command); break; */
+        default: return "Wrong command";
     }
 }
