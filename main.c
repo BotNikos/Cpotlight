@@ -20,8 +20,12 @@ void *parsingThread (void *data) {
         char userInputCopy [128];
         strcpy (userInputCopy, pWin -> userInput);
 
-        char *userInputTrimmed = strtok (userInputCopy, "\n");
-        char *prefix = strtok (userInputTrimmed, ";");
+        // wait when user complete typing
+        sleep (1);
+        if (strcmp (userInputCopy, pWin -> userInput) != 0)
+            continue;
+
+        char *prefix = strtok (userInputCopy, ";");
         char *command = strtok (NULL, ";");
 
         box (pWin -> win, 0, 0);
@@ -31,13 +35,13 @@ void *parsingThread (void *data) {
         mvwprintw (pWin -> win, 3, 1, "Command: %s", command);
 
         if (command) {
-            char *result = startProcess (prefix, command, userInputTrimmed);
+            char *result = startProcess (prefix, command, userInputCopy);
             mvwprintw (pWin -> win, 4, 1, "Result: %s", result);
+            free (result);
         } else
             mvwprintw (pWin -> win, 4, 1, "%s", "Type something :)");
 
         wrefresh (pWin -> win);
-        sleep (1);
         werase (pWin -> win);
     }
 

@@ -13,13 +13,13 @@ void browserQuery (char *command) {
     execlp (browser, "", searchQuery, NULL);
 }
 
-char *calculate (char *command) {
+char *calculate (char *command, char *result) {
     char calcCmd [32];
-    char *result;
     sprintf (calcCmd, "awk \"BEGIN {print %s}\"", command);
 
     FILE *calculations = popen (calcCmd, "r");
     fgets(result, 31, calculations);
+    pclose (calculations);
     return result;
 }
 
@@ -64,11 +64,9 @@ int findElem (char *elem, char *array [], int size) {
 }
 
 char *startProcess (char *prefix, char *command, char *userInputTrimmed) {
-    // int execution = 0 - wait for user to enter a full command
-    // int execution = 1 - execute command in real time
-
     char *waitPrefixes [] = {"b", "bs"};
     char *realTimePrefixes [] = {"c", "t"};
+    char *result = malloc (32);
 
     /* switch (findElem (prefix, waitPrefixes, sizeof (waitPrefixes) / 8)) { */
     /*     case 0: execlp ("brave", "", command); break; */
@@ -77,8 +75,10 @@ char *startProcess (char *prefix, char *command, char *userInputTrimmed) {
     /* } */
 
     switch (findElem (prefix, realTimePrefixes, sizeof (realTimePrefixes) / 8)) {
-        case 0: return calculate (command); break;
+        case 0: calculate (command, result); break;
         /* case 1: translate (command); break; */
-        default: return "Wrong command";
+        default: strcpy (result, "Wrong command");
     }
+
+    return result;
 }
