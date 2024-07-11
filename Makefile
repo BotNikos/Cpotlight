@@ -1,11 +1,17 @@
-main: mainLib processLib
-	clang -g -o cpotlight bin/main.o bin/process.o -lcurl -lncurses -lpthread
+main: mainLib processLib helperLib runtimeParserLib
+	clang -g -o cpotlight bin/main.o bin/process.o bin/runtimeParser.o bin/helper.o -lcurl -lncurses -lpthread
 
 mainLib: main.c bin
-	clang -c -g main.c -o bin/main.o
+	clang -c main.c -o bin/main.o
 
 processLib: include/process.h lib/process.c bin
-	clang -c -g lib/process.c -o bin/process.o
+	clang -c lib/process.c -o bin/process.o
+
+runtimeParserLib: include/runtimeParser.h lib/runtimeParser.c bin
+	clang -c lib/runtimeParser.c -o bin/runtimeParser.o
+
+helperLib: include/helper.h lib/helper.c bin
+	clang -c lib/helper.c -o bin/helper.o
 
 bin:
 	mkdir bin

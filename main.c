@@ -6,6 +6,7 @@
 #include <pthread.h>
 
 #include "include/process.h"
+#include "include/runtimeParser.h"
 
 typedef struct winData {
     WINDOW * win;
@@ -21,7 +22,7 @@ void *parsingThread (void *data) {
         strcpy (userInputCopy, pWin -> userInput);
 
         // wait when user complete typing
-        sleep (1);
+        usleep(500000); // 0.5 sec
         if (strcmp (userInputCopy, pWin -> userInput) != 0)
             continue;
 
@@ -35,7 +36,7 @@ void *parsingThread (void *data) {
         mvwprintw (pWin -> win, 3, 1, "Command: %s", command);
 
         if (command) {
-            char *result = startProcess (prefix, command, userInputCopy);
+            char *result = parse (prefix, command, userInputCopy);
             mvwprintw (pWin -> win, 4, 1, "Result: %s", result);
             free (result);
         } else
