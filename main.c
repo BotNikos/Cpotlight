@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ncurses.h>
+#include <locale.h>
 #include <pthread.h>
 
 #include "include/process.h"
@@ -50,15 +51,14 @@ void *parsingThread (void *data) {
 }
 
 int main (void) {
+    setlocale(LC_ALL, "");
+
     int maxCol, maxRow;
     winData parsingWin;
     memset(parsingWin.userInput, '\0', sizeof (parsingWin.userInput));
 
-    /* sleep (30); */
-
     initscr ();
     raw ();
-    curs_set(0);
 
     getmaxyx (stdscr, maxRow, maxCol);
 
