@@ -27,21 +27,11 @@ void *parsingThread (void *data) {
         if (strcmp (userInputCopy, pWin -> userInput) != 0)
             continue;
 
-        char *prefix = strtok (userInputCopy, ";");
-        char *command = strtok (NULL, ";");
+        char *result = parse (userInputCopy);
 
         box (pWin -> win, 0, 0);
-
-        mvwprintw (pWin -> win, 1, 1, "You wrote: %s", pWin -> userInput);
-        mvwprintw (pWin -> win, 2, 1, "Prefix: %s", prefix);
-        mvwprintw (pWin -> win, 3, 1, "Command: %s", command);
-
-        if (command) {
-            char *result = parse (prefix, command, userInputCopy);
-            mvwprintw (pWin -> win, 4, 1, "Result: %s", result);
-            free (result);
-        } else
-            mvwprintw (pWin -> win, 4, 1, "%s", "Type something :)");
+        mvwprintw (pWin -> win, 1, 1, "%s", result);
+        free (result);
 
         wrefresh (pWin -> win);
         werase (pWin -> win);
@@ -70,10 +60,11 @@ int main (void) {
     wrefresh(inputWin);
 
     pthread_t thread_id;
-    parsingWin.win = newwin (10, maxCol, 7, 0);
+    parsingWin.win = newwin (maxRow - 8, maxCol - 20, 7, 10);
     pthread_create (&thread_id, NULL, parsingThread, (void *) &parsingWin);
 
     mvwgetstr (inputWin, 1, 1, parsingWin.userInput);
+    startProcess (parsingWin.userInput);
 
     pthread_cancel (thread_id);
     endwin ();

@@ -47,16 +47,22 @@ void calculate (char *command, char *result) {
     pclose (calculations);
 }
 
-char *parse (char *prefix, char *command, char *userInputTrimmed) {
+char *parse (char *userInput) {
     char *prefixes [] = {"c", "t"};
     char *result = malloc (256);
     memset (result, '\0', 256);
 
-    switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
-        case 0: calculate (command, result); break;
-        case 1: translate (command, result); break;
-        default: strcpy (result, "Wrong command");
-    }
+    char *prefix = strtok (userInput, ";");
+    char *command = strtok (NULL, ";");
+
+    if (command) {
+        switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
+            case 0: calculate (command, result); break;
+            case 1: translate (command, result); break;
+            default: strcpy (result, "Wrong command");
+        }
+    } else
+        strcpy (result, "Waiting for input");
 
     return result;
 }

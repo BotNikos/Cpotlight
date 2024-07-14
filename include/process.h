@@ -3,7 +3,7 @@
 
 static const char *browser = "brave";
 
-char *startProcess (char *prefix, char *command, char *userInputTrimmed);
+void startProcess (char *userInput);
 void browserQuery (char *command);
 
 #endif

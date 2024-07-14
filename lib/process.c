@@ -12,16 +12,25 @@ void browserQuery (char *command) {
     execlp (browser, "", searchQuery, NULL);
 }
 
-char *startProcess (char *prefix, char *command, char *userInputTrimmed) {
-    char *waitPrefixes [] = {"b", "bs"};
-    char *realTimePrefixes [] = {"c", "t"};
-    char *result = malloc (32);
+void startProcess (char *userInput) {
+    char *prefixes [] = {"b", "bs"};
 
-    /* switch (findElem (prefix, waitPrefixes, sizeof (waitPrefixes) / 8)) { */
-    /*     case 0: execlp ("brave", "", command); break; */
-    /*     case 1: browserQuery(command); break; */
-    /*     default: execlp (userInputTrimmed, NULL); */
-    /* } */
+    char *prefix = strtok (userInput, ";");
+    char *command = strtok (NULL, ";");
 
-    return result;
+    pid_t process = fork ();
+
+    if (process == 0) {
+        setsid ();
+
+        close (STDIN_FILENO);
+        fclose (stdout);
+        fclose (stderr);
+
+        switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
+            case 0: execlp ("brave", "", command); break;
+            case 1: browserQuery(command); break;
+            default: execlp (userInput, NULL);
+        }
+    }
 }
