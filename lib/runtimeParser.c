@@ -7,6 +7,7 @@
 #include "../include/runtimeParser.h"
 #include "../include/helper.h"
 
+
 size_t translateOutput (char *data, size_t size, size_t nmemb, void *response) {
     char *result = (char *) response;
 
@@ -38,31 +39,42 @@ void translate (char *word, char *result) {
     curl_global_cleanup ();
 }
 
-void calculate (char *command, char *result) {
+void pathParse (char *userInput, char *result [], int resultCount, int resultSize) {
+    char findCmd [64] = "";
+    sprintf (findCmd, "ls -l /usr/bin | awk '{print $9}' | grep %s", userInput);
+
+    FILE *find = popen (findCmd, "r");
+
+    for (int i = 0; i < resultCount; i++) {
+        fgets (result [i], resultSize - 1, find);
+    }
+
+    pclose (find);
+}
+
+void calculate (char *command, char *result, int resultSize) {
     char calcCmd [32];
     sprintf (calcCmd, "awk \"BEGIN {print %s}\" 2>&1", command);
-    
+
     FILE *calculations = popen (calcCmd, "r");
-    fgets(result, 255, calculations);
+    fgets(result, resultSize - 1, calculations);
     pclose (calculations);
 }
 
-char *parse (char *userInput) {
+void parse (char *userInput, char *result [], int resultCount, int resultSize) {
     char *prefixes [] = {"c", "t"};
-    char *result = malloc (256);
-    memset (result, '\0', 256);
 
     char *prefix = strtok (userInput, ";");
     char *command = strtok (NULL, ";");
 
     if (command) {
         switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
-            case 0: calculate (command, result); break;
-            case 1: translate (command, result); break;
-            default: strcpy (result, "Wrong command");
+            case 0: calculate (command, result [0], resultSize); break;
+            case 1: translate (command, result [0]); break;
+            default: strcpy (result [0], "Wrong command");
         }
-    } else
-        strcpy (result, "Waiting for input");
-
-    return result;
+    } else if (prefix)
+        pathParse (userInput, result, resultCount, resultSize); 
+    else
+        strcpy (result [0], "Waiting for input");
 }

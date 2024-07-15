@@ -27,11 +27,23 @@ void *parsingThread (void *data) {
         if (strcmp (userInputCopy, pWin -> userInput) != 0)
             continue;
 
-        char *result = parse (userInputCopy);
+        int resultCount = 10;
+        int resultSize = 256;
+        char *result [resultCount];
+
+        for (int i = 0; i < resultCount; i++) {
+            result [i] = malloc (resultSize);
+            strcpy (result [i], "");
+        }
+
+        parse (userInputCopy, result, resultCount, resultSize);
 
         box (pWin -> win, 0, 0);
-        mvwprintw (pWin -> win, 1, 1, "%s", result);
-        free (result);
+
+        for (int i = 0; i < resultCount; i++) {
+            mvwprintw (pWin -> win, i + 1, 1, "%s", result [i]);
+            free (result [i]);
+        }
 
         wrefresh (pWin -> win);
         werase (pWin -> win);
