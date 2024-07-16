@@ -28,11 +28,11 @@ void *parsingThread (void *data) {
             continue;
 
         int resultCount = 10;
-        int resultSize = 256;
+        int resultSize = 32;
         char *result [resultCount];
 
         for (int i = 0; i < resultCount; i++) {
-            result [i] = malloc (resultSize);
+            result [i] = (i == 0) ? malloc (256) : malloc (resultSize);
             strcpy (result [i], "");
         }
 

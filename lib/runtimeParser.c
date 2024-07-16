@@ -9,12 +9,12 @@
 
 
 size_t translateOutput (char *data, size_t size, size_t nmemb, void *response) {
-    char *result = (char *) response;
 
-    if (strcmp (result, "") == 0) {
+    if (strcmp ((char *) response, "") == 0) {
         char *findStr = strstr (data, "Перевод");
         findStr = strtok (findStr, ".");
-        strcpy (result, findStr);
+
+        strcpy ((char *) response, findStr);
     }
 
     return nmemb;
