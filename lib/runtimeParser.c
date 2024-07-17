@@ -14,7 +14,7 @@ size_t translateOutput (char *data, size_t size, size_t nmemb, void *response) {
         char *findStr = strstr (data, "Перевод");
         findStr = strtok (findStr, ".");
 
-        strcpy ((char *) response, findStr);
+        strcpy ((char *) response, (findStr) ? findStr : "Word not found");
     }
 
     return nmemb;
@@ -58,6 +58,10 @@ void calculate (char *command, char *result, int resultSize) {
 
     FILE *calculations = popen (calcCmd, "r");
     fgets(result, resultSize - 1, calculations);
+
+    if (strstr (result, "awk"))
+        strcpy (result, "Calculations error");
+
     pclose (calculations);
 }
 

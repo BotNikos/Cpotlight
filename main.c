@@ -17,6 +17,7 @@ typedef struct winData {
 void *parsingThread (void *data) {
 
     winData *pWin = (winData *) data;
+    bool update = true;
 
     while (1 == 1) {
         char userInputCopy [128];
@@ -24,8 +25,15 @@ void *parsingThread (void *data) {
 
         // wait when user complete typing
         usleep(500000); // 0.5 sec
-        if (strcmp (userInputCopy, pWin -> userInput) != 0)
+        if (strcmp (userInputCopy, pWin -> userInput) != 0) {
+            update = true;
             continue;
+        }
+
+        if (!update)
+            continue;
+
+        update = false;
 
         int resultCount = 10;
         int resultSize = 32;
