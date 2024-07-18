@@ -18,27 +18,30 @@ written in C
 |-----------+-----------------------------------------------------+----------------------|
 | t         | Translate word (only russian and english supported) | t;hello              |
 
-* Change Browser
+* Change preffered browser
 By default this application compiled for brave
 browser queries. You can cahnge that behaviour
-by changing one line of code
+by changing one line of code in process.h file
 
 #+begin_src C
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <string.h>
-  #include <unistd.h>
+  #ifndef PROCESS_H 
+  #define PROCESS_H
 
-  const char *browser = "brave"; // Change your browser
+  static const char *browser = "brave"; // Change your browser here
 
-  void browserQuery (char *command) {
-      char searchQuery [128];
-      sprintf (searchQuery, "https://google.com/search?q=%s", command);
-  // next code
+  void startProcess (char *userInput);
+  void browserQuery (char *command);
 
+  #endif
 #+end_src
 
 * How to install
+
+** Dependencies
++ clang
++ curl
+
+** Installation
 To install this programm you need to do following
 commands in your terminal:
 
