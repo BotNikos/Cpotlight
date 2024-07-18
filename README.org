@@ -21,7 +21,7 @@ written in C
 * Change preffered browser
 By default this application compiled for brave
 browser queries. You can cahnge that behaviour
-by changing one line of code in process.h file
+by changing one line of code in *process.h* file
 
 #+begin_src C
   #ifndef PROCESS_H 
