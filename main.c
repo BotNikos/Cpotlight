@@ -70,7 +70,6 @@ void *parsingThread (void *data) {
         else if (pWin -> spKey == KEY_DOWN && selectedResult < resultsCount - 1)
             selectedResult += 1;
 
-        mvwprintw (pWin -> win, resultsCount + 1, 1, "Selected result = %i", selectedResult);
         pWin -> spKey = -1;
 
         box (pWin -> win, 0, 0);
