@@ -13,7 +13,7 @@
 typedef struct winData {
     WINDOW * win;
     char userInput [128];
-    int arrKey;
+    int spKey;
 } winData;
 
 void *parsingThread (void *data) {
@@ -33,7 +33,7 @@ void *parsingThread (void *data) {
             continue;
         }
 
-        int resultCount = 10;
+        int resultCount = 20;
         int resultSize = 32;
         char *result [resultCount];
 
@@ -45,21 +45,35 @@ void *parsingThread (void *data) {
         parse (userInputCopy, result, resultCount, resultSize);
 
         werase (pWin -> win);
-        box (pWin -> win, 0, 0);
 
+        if (pWin -> spKey == KEY_ENTER) {
+            strcpy (pWin -> userInput, strtok (result [selectedResult], "\n"));
+            break;
+        }
+
+        int resultsCount = 0;
         for (int i = 0; i < resultCount; i++) {
-            mvwprintw (pWin -> win, i + 1, 1, "%i. %s", i + 1, result [i]);
+            if (strcmp (result[i], "") != 0) {
+
+                if (i == selectedResult) wattron (pWin -> win, COLOR_PAIR(1));
+                mvwprintw (pWin -> win, i + 1, 1, "%i. %s", i + 1, result [i]);
+
+                wattroff (pWin -> win, COLOR_PAIR(1));
+                resultsCount++;
+            }
+
             free (result [i]);
         }
 
-        if (pWin -> arrKey == 0 && selectedResult > 0) 
+        if (pWin -> spKey == KEY_UP && selectedResult > 0) 
             selectedResult -= 1;
-        else if (pWin -> arrKey == 1 && selectedResult < 10)
+        else if (pWin -> spKey == KEY_DOWN && selectedResult < resultsCount - 1)
             selectedResult += 1;
 
-        mvwprintw (pWin -> win, 12, 1, "Selected result = %i", selectedResult);
-        pWin -> arrKey = -1;
+        mvwprintw (pWin -> win, resultsCount + 1, 1, "Selected result = %i", selectedResult);
+        pWin -> spKey = -1;
 
+        box (pWin -> win, 0, 0);
         wrefresh (pWin -> win);
     }
 
@@ -75,6 +89,9 @@ int main (void) {
 
     initscr ();
     raw ();
+
+    start_color ();
+    init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
     getmaxyx (stdscr, maxRow, maxCol);
 
@@ -93,27 +110,27 @@ int main (void) {
     int ch;
     int pos = 0;
     while (1 == 1) {
-
         wmove (inputWin, 1, pos + 1);
         ch = wgetch (inputWin);
 
-        if (ch == KEY_ENTER || ch == '\n' || ch == '\r')
+        if (ch == KEY_ENTER || ch == '\n' || ch == '\r') {
+            parsingWin.spKey = KEY_ENTER;
             break;
-        else if (isprint (ch))
+        } else if (isprint (ch))
             parsingWin.userInput [pos++] = ch;
         else if (ch == KEY_BACKSPACE && pos > 0) {
             parsingWin.userInput [--pos] = '\0';
             wclrtoeol(inputWin);
+            box (inputWin, 0, 0);
         } else if (ch == KEY_UP)
-            parsingWin.arrKey = 0;
+            parsingWin.spKey = KEY_UP;
         else if (ch == KEY_DOWN)
-            parsingWin.arrKey = 1;
-            
+            parsingWin.spKey = KEY_DOWN;
     }
 
+    pthread_join (thread_id, 0);
     startProcess (parsingWin.userInput);
 
-    pthread_cancel (thread_id);
     endwin ();
 
     return EXIT_SUCCESS;
