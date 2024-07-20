@@ -28,7 +28,7 @@ void startProcess (char *userInput) {
         fclose (stderr);
 
         switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
-            case 0: execlp ("brave", "", command); break;
+            case 0: execlp (browser, "", command); break;
             case 1: browserQuery(command); break;
             default: execlp (userInput, NULL);
         }

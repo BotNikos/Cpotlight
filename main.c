@@ -51,15 +51,17 @@ void *parsingThread (void *data) {
             break;
         }
 
-        int resultsCount = 0;
+        int findedResults = 0;
         for (int i = 0; i < resultCount; i++) {
             if (strcmp (result[i], "") != 0) {
 
-                if (i == selectedResult) wattron (pWin -> win, COLOR_PAIR(1));
+                if (i == selectedResult)
+                    wattron (pWin -> win, COLOR_PAIR(1));
+
                 mvwprintw (pWin -> win, i + 1, 1, "%i. %s", i + 1, result [i]);
 
                 wattroff (pWin -> win, COLOR_PAIR(1));
-                resultsCount++;
+                findedResults++;
             }
 
             free (result [i]);
@@ -67,7 +69,7 @@ void *parsingThread (void *data) {
 
         if (pWin -> spKey == KEY_UP && selectedResult > 0) 
             selectedResult -= 1;
-        else if (pWin -> spKey == KEY_DOWN && selectedResult < resultsCount - 1)
+        else if (pWin -> spKey == KEY_DOWN && selectedResult < findedResults - 1)
             selectedResult += 1;
 
         pWin -> spKey = -1;
