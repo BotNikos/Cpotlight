@@ -66,7 +66,7 @@ void calculate (char *command, char *result, int resultSize) {
 }
 
 void parse (char *userInput, char *result [], int resultCount, int resultSize) {
-    char *prefixes [] = {"c", "t", "b", "bs"};
+    char *prefixes [] = {"c", "t", "b", "bs", "yt"};
     char userInputCopy [256];
     strcpy (userInputCopy, userInput);
 
@@ -77,7 +77,7 @@ void parse (char *userInput, char *result [], int resultCount, int resultSize) {
         switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
             case 0: calculate (command, result [0], resultSize); break;
             case 1: translate (command, result [0]); break;
-            case 2: case 3: strcpy (result [0], userInputCopy); break;
+            case 2: case 3: case 4: strcpy (result [0], userInputCopy); break;
             default: strcpy (result [0], "Wrong prefix");
         }
     } else if (prefix)

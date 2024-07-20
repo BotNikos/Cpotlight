@@ -12,8 +12,14 @@ void browserQuery (char *command) {
     execlp (browser, "", searchQuery, NULL);
 }
 
+void ytQuery (char *command) {
+    char searchQuery [128];
+    sprintf (searchQuery, "https://youtube.com/results?search_query=%s", command);
+    execlp (browser, "", searchQuery, NULL);
+}
+
 void startProcess (char *userInput) {
-    char *prefixes [] = {"b", "bs"};
+    char *prefixes [] = {"b", "bs", "yt"};
 
     char *prefix = strtok (userInput, ";");
     char *command = strtok (NULL, ";");
@@ -30,6 +36,7 @@ void startProcess (char *userInput) {
         switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
             case 0: execlp (browser, "", command); break;
             case 1: browserQuery(command); break;
+            case 2: ytQuery (command); break;
             default: execlp (userInput, NULL);
         }
     }
