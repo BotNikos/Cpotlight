@@ -90,6 +90,7 @@ int main (void) {
 
     initscr ();
     raw ();
+    nonl ();
 
     start_color ();
     init_pair (1, COLOR_BLACK, COLOR_WHITE);
@@ -110,11 +111,12 @@ int main (void) {
 
     int ch;
     int pos = 0;
+
     while (1 == 1) {
         wmove (inputWin, 1, pos + 1);
         ch = wgetch (inputWin);
 
-        if (ch == KEY_ENTER || ch == '\n' || ch == '\r') {
+        if (ch == KEY_ENTER || ch == '\r') {
             parsingWin.spKey = KEY_ENTER;
             break;
 
@@ -130,10 +132,10 @@ int main (void) {
             wclrtoeol(inputWin);
             box (inputWin, 0, 0);
 
-        } else if (ch == KEY_UP) {
+        } else if (ch == KEY_UP || ch == 11) {
             parsingWin.spKey = KEY_UP;
 
-        } else if (ch == KEY_DOWN)
+        } else if (ch == KEY_DOWN || ch == 10)
             parsingWin.spKey = KEY_DOWN;
     }
 
