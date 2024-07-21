@@ -6,23 +6,14 @@
 #include "../include/process.h"
 #include "../include/helper.h"
 
-void browserQuery (char *command) {
-    char searchQuery [128];
-    sprintf (searchQuery, "https://google.com/search?q=%s", command);
-    execlp (browser, "", searchQuery, NULL);
-}
-
-void ytQuery (char *command) {
-    char searchQuery [128];
-    sprintf (searchQuery, "https://youtube.com/results?search_query=%s", command);
-    execlp (browser, "", searchQuery, NULL);
-}
-
 void startProcess (char *userInput) {
-    char *prefixes [] = {"b", "bs", "yt"};
+    char *prefixes [] = {"b", "bs", "yt", "tg"};
 
     char *prefix = strtok (userInput, ";");
     char *command = strtok (NULL, ";");
+
+    char link [128];
+    memset (link, '\0', sizeof (link));
 
     pid_t process = fork ();
 
@@ -34,10 +25,16 @@ void startProcess (char *userInput) {
         fclose (stderr);
 
         switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
-            case 0: execlp (browser, "", command); break;
-            case 1: browserQuery(command); break;
-            case 2: ytQuery (command); break;
-            default: execlp (userInput, NULL);
+            case 0: strcpy (link, command); break;
+            case 1: sprintf (link, "https://google.com/search?q=%s", command); break;
+            case 2: sprintf (link, "https://youtube.com/results?search_query=%s", command); break;
+            case 3: strcpy (link, "https://web.telegram.org"); break;
         }
+
+        if (strcmp (link, "") == 0)
+            execlp (userInput, NULL);
+        else
+            execlp (browser, "", link, NULL);
+            
     }
 }

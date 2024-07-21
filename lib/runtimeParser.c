@@ -41,12 +41,17 @@ void translate (char *word, char *result) {
 
 void pathParse (char *userInput, char *result [], int resultCount, int resultSize) {
     char findCmd [64] = "";
-    sprintf (findCmd, "ls -l /usr/bin | awk '{print $9}' | grep %s", userInput);
+    sprintf (findCmd, "ls -l /usr/bin | awk '{print $9}' | grep %s 2>&1", userInput);
 
     FILE *find = popen (findCmd, "r");
 
     for (int i = 0; i < resultCount; i++) {
         fgets (result [i], resultSize - 1, find);
+
+        if (strstr (result [i], "grep")) {
+            strcpy (result [i], "Wrong command"); 
+            break;
+        }
     }
 
     pclose (find);
@@ -66,7 +71,7 @@ void calculate (char *command, char *result, int resultSize) {
 }
 
 void parse (char *userInput, char *result [], int resultCount, int resultSize) {
-    char *prefixes [] = {"c", "t", "b", "bs", "yt"};
+    char *prefixes [] = {"c", "t", "b", "bs", "yt", "tg"};
     char userInputCopy [256];
     strcpy (userInputCopy, userInput);
 
@@ -77,7 +82,9 @@ void parse (char *userInput, char *result [], int resultCount, int resultSize) {
         switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
             case 0: calculate (command, result [0], resultSize); break;
             case 1: translate (command, result [0]); break;
-            case 2: case 3: case 4: strcpy (result [0], userInputCopy); break;
+            case 2: case 3: case 4: case 5:
+            strcpy (result [0], userInputCopy); break;
+
             default: strcpy (result [0], "Wrong prefix");
         }
     } else if (prefix)

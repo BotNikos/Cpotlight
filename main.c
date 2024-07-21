@@ -117,15 +117,23 @@ int main (void) {
         if (ch == KEY_ENTER || ch == '\n' || ch == '\r') {
             parsingWin.spKey = KEY_ENTER;
             break;
-        } else if (isprint (ch))
+
+        } else if (isprint (ch)) {
             parsingWin.userInput [pos++] = ch;
-        else if (ch == KEY_BACKSPACE && pos > 0) {
+
+        } else if (ch == 27) {
+            pthread_cancel (thread_id);
+            break;
+
+        } else if (ch == KEY_BACKSPACE && pos > 0) {
             parsingWin.userInput [--pos] = '\0';
             wclrtoeol(inputWin);
             box (inputWin, 0, 0);
-        } else if (ch == KEY_UP)
+
+        } else if (ch == KEY_UP) {
             parsingWin.spKey = KEY_UP;
-        else if (ch == KEY_DOWN)
+
+        } else if (ch == KEY_DOWN)
             parsingWin.spKey = KEY_DOWN;
     }
 
