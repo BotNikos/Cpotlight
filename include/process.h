@@ -1,7 +1,7 @@
 #ifndef PROCESS_H 
 #define PROCESS_H
 
-static const char *browser = "brave";
+static const char *browser = "firefox";
 
 void startProcess (char *userInput);
 
