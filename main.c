@@ -9,6 +9,7 @@
 
 #include "include/process.h"
 #include "include/runtimeParser.h"
+#include "include/configParser.h"
 
 typedef struct winData {
     WINDOW * win;
@@ -22,19 +23,22 @@ void *parsingThread (void *data) {
 
     int selectedResult = 0;
 
+    struct config *config = configParser ();
+    int resultCount = config -> resultCount;
+    int resultSize = 32;
+
     while (1 == 1) {
         char userInputCopy [128];
         strcpy (userInputCopy, pWin -> userInput);
 
         // wait when user complete typing
-        usleep(100000); // 0.1 sec
+        /* usleep(100000); // 0.1 sec */
+        usleep(10000); // 0.01 sec
         if (strcmp (userInputCopy, pWin -> userInput) != 0) {
             selectedResult = 0;
             continue;
         }
 
-        int resultCount = 20;
-        int resultSize = 32;
         char *result [resultCount];
 
         for (int i = 0; i < resultCount; i++) {
@@ -88,6 +92,8 @@ int main (void) {
     winData parsingWin;
     memset(parsingWin.userInput, '\0', sizeof (parsingWin.userInput));
 
+    struct config *config = configParser ();
+
     initscr ();
     raw ();
     nonl ();
@@ -100,13 +106,13 @@ int main (void) {
     mvprintw (1, (maxCol / 2) - (strlen ("Enter your command:") / 2), "Enter your command:");
     refresh ();
 
-    WINDOW *inputWin = newwin (3, maxCol - 20, 3, 10);
+    WINDOW *inputWin = newwin (3, maxCol - config -> padding * 2, 3, config -> padding);
     keypad (inputWin, TRUE);
     box (inputWin, 0, 0);
     wrefresh(inputWin);
 
     pthread_t thread_id;
-    parsingWin.win = newwin (maxRow - 8, maxCol - 20, 7, 10);
+    parsingWin.win = newwin (maxRow - 8, maxCol - config -> padding * 2, 7, config -> padding);
     pthread_create (&thread_id, NULL, parsingThread, (void *) &parsingWin);
 
     int ch;
@@ -125,6 +131,7 @@ int main (void) {
 
         } else if (ch == 27) {
             pthread_cancel (thread_id);
+            strcpy (parsingWin.userInput, "");
             break;
 
         } else if (ch == KEY_BACKSPACE && pos > 0) {
@@ -132,10 +139,10 @@ int main (void) {
             wclrtoeol(inputWin);
             box (inputWin, 0, 0);
 
-        } else if (ch == KEY_UP || ch == 11) {
+        } else if (ch == KEY_UP || ch == config -> upKeycode) {
             parsingWin.spKey = KEY_UP;
 
-        } else if (ch == KEY_DOWN || ch == 10)
+        } else if (ch == KEY_DOWN || ch == config -> downKeycode)
             parsingWin.spKey = KEY_DOWN;
     }
 

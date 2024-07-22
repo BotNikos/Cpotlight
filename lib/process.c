@@ -5,8 +5,10 @@
 
 #include "../include/process.h"
 #include "../include/helper.h"
+#include "../include/configParser.h"
 
 void startProcess (char *userInput) {
+    struct config *config = configParser ();
     char *prefixes [] = {"b", "bs", "yt", "tg"};
 
     char *prefix = strtok (userInput, ";");
@@ -34,7 +36,7 @@ void startProcess (char *userInput) {
         if (strcmp (link, "") == 0)
             execlp (userInput, NULL);
         else
-            execlp (browser, "", link, NULL);
+            execlp (config -> browser, "", link, NULL);
             
     }
 }
