@@ -70,8 +70,29 @@ void calculate (char *command, char *result, int resultSize) {
     pclose (calculations);
 }
 
+void fileFinder (char *command, char *result [], int resultCount, int resultSize) {
+    char lsCmd [128];
+    sprintf (lsCmd, "ls -l %s 2>&1 | awk '{print $9}'", command);
+    FILE *files = popen (lsCmd, "r");
+
+    fgets (result [0], resultSize - 1, files); // skip first line
+
+    for (int i = 0; i <= resultCount; i++) {
+        fgets (result [i], resultSize - 1, files);
+
+        if (strstr (result [i], "No such file or directory"))
+            break;
+    }
+
+    /* char *lastNode */
+    /* lastNode = strtok (command, "/"); */
+
+    /* while (lastNode != NULL)  */
+    /*     lastNode = strtok (NULL, "/"); */
+}
+
 void parse (char *userInput, char *result [], int resultCount, int resultSize) {
-    char *prefixes [] = {"c", "t", "b", "bs", "yt", "tg"};
+    char *prefixes [] = {"c", "t", "b", "bs", "yt", "tg", "f"};
     char userInputCopy [256];
     strcpy (userInputCopy, userInput);
 
@@ -84,6 +105,7 @@ void parse (char *userInput, char *result [], int resultCount, int resultSize) {
             case 1: translate (command, result [0]); break;
             case 2: case 3: case 4: case 5:
             strcpy (result [0], userInputCopy); break;
+            case 6: fileFinder (command, result, resultCount, resultSize); break;
 
             default: strcpy (result [0], "Wrong prefix");
         }
