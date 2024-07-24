@@ -20,8 +20,6 @@ written in C
 |-----------+-----------------------------------------------------+----------------------|
 | t         | Translate word (only russian and english supported) | t;hello              |
 
-
-
 * Change application behaviour
 You can change the way Cpotlight works by editing
 *config.cfg* file in programm directory
