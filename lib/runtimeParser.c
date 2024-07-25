@@ -70,25 +70,52 @@ void calculate (char *command, char *result, int resultSize) {
     pclose (calculations);
 }
 
+char *pathConcat (char *nodes [], int nodesCount) {
+    char *path = (char *) malloc (128);
+
+    strcpy (path, "/");
+    for (int i = 0; i < nodesCount - 1; i++) {
+        strcat (path, nodes [i]);
+        strcat (path, "/");
+    }
+
+    return path;
+}
+
 void fileFinder (char *command, char *result [], int resultCount, int resultSize) {
+    char commandCopy [128];
+    strcpy (commandCopy, command);
+
+    char *nodes [32];
+    int nodesCount = 0;
+
+    char *lastNode = strtok (commandCopy, "/");
+    while (lastNode != NULL) {
+        nodes [nodesCount] = lastNode; 
+        lastNode = strtok (NULL, "/");
+        nodesCount++;
+    }
+
+    char *lsPath = pathConcat (nodes, nodesCount);
+
     char lsCmd [128];
-    sprintf (lsCmd, "ls -l %s 2>&1 | awk '{print $9}'", command);
+
+    if (strcmp (&command [strlen (command) - 1], "/") == 0)
+        sprintf (lsCmd, "ls -l %s 2>&1 | awk '{print $9}'", command);
+    else
+        sprintf (lsCmd, "ls -l %s 2>&1 | awk '{print $9}' | grep %s", lsPath, nodes [nodesCount - 1]);
+
+    free (lsPath);
     FILE *files = popen (lsCmd, "r");
 
-    fgets (result [0], resultSize - 1, files); // skip first line
-
-    for (int i = 0; i <= resultCount; i++) {
+    for (int i = 0; i < resultCount; i++) {
         fgets (result [i], resultSize - 1, files);
 
-        if (strstr (result [i], "No such file or directory"))
+        if (strstr (result [i], "directory"))
             break;
     }
 
-    /* char *lastNode */
-    /* lastNode = strtok (command, "/"); */
-
-    /* while (lastNode != NULL)  */
-    /*     lastNode = strtok (NULL, "/"); */
+    pclose (files);
 }
 
 void parse (char *userInput, char *result [], int resultCount, int resultSize) {
