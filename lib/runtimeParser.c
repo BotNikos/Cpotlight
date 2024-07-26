@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <stdbool.h>
 #include <curl/curl.h>
 
 #include "../include/runtimeParser.h"
@@ -98,14 +99,27 @@ void fileFinder (char *command, char *result [], int resultCount, int resultSize
     }
 
     char *lsPath = pathConcat (nodes, nodesCount);
+    bool slashEnd = (strcmp (&command [strlen (command) - 1], "/") == 0) ? true : false;
 
     struct dirent **dir;
-    int dirCount = scandir (command, &dir, 0, alphasort);
+    int dirCount;
+
+    dirCount = (slashEnd) ? scandir (command, &dir, 0, alphasort) : scandir (lsPath, &dir, 0, alphasort);
 
     if (dirCount > 0) {
         
+        int position = 0;
         for (int i = 0; i < resultCount && i < dirCount; i++) {
-            strcpy (result [i], dir [i] -> d_name);
+            char *dirName = dir [i] -> d_name;
+
+            if (slashEnd)
+                strcpy (result [i], dir [i] -> d_name);
+
+            else if (strstr (dirName, nodes [nodesCount - 1])) {
+                strcpy (result [position], dir [i] -> d_name);
+                position ++;
+            }
+
             free (dir [i]);
         }
 
