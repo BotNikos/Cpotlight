@@ -25,7 +25,7 @@ void *parsingThread (void *data) {
 
     struct config *config = configParser ();
     int resultCount = config -> resultCount;
-    int resultSize = 32;
+    int resultSize = 256;
 
     while (1 == 1) {
         char userInputCopy [128];
@@ -42,7 +42,7 @@ void *parsingThread (void *data) {
         char *result [resultCount];
 
         for (int i = 0; i < resultCount; i++) {
-            result [i] = (i == 0) ? malloc (256) : malloc (resultSize);
+            result [i] = malloc (resultSize);
             strcpy (result [i], "");
         }
 

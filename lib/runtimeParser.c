@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <curl/curl.h>
 
 #include "../include/runtimeParser.h"
@@ -98,24 +99,20 @@ void fileFinder (char *command, char *result [], int resultCount, int resultSize
 
     char *lsPath = pathConcat (nodes, nodesCount);
 
-    char lsCmd [128];
+    struct dirent **dir;
+    int dirCount = scandir (command, &dir, 0, alphasort);
 
-    if (strcmp (&command [strlen (command) - 1], "/") == 0)
-        sprintf (lsCmd, "ls -l %s 2>&1 | awk '{print $9}'", command);
-    else
-        sprintf (lsCmd, "ls -l %s 2>&1 | awk '{print $9}' | grep %s", lsPath, nodes [nodesCount - 1]);
+    if (dirCount > 0) {
+        
+        for (int i = 0; i < resultCount && i < dirCount; i++) {
+            strcpy (result [i], dir [i] -> d_name);
+            free (dir [i]);
+        }
 
-    free (lsPath);
-    FILE *files = popen (lsCmd, "r");
+        free (dir);
 
-    for (int i = 0; i < resultCount; i++) {
-        fgets (result [i], resultSize - 1, files);
-
-        if (strstr (result [i], "directory"))
-            break;
-    }
-
-    pclose (files);
+    } else
+        strcpy (result [0], "Wrong directory");
 }
 
 void parse (char *userInput, char *result [], int resultCount, int resultSize) {
