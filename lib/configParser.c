@@ -18,7 +18,8 @@ struct config *configParser () {
         "padding",
         "upKeycode",
         "downKeycode",
-        "resultCount"
+        "acKeycode",
+        "resultCount",
     };
 
     for (char str [64]; fgets (str, 64, configFile);) {
@@ -34,7 +35,8 @@ struct config *configParser () {
                 case 1: config.padding = atoi (property); break;
                 case 2: config.upKeycode = atoi (property); break;
                 case 3: config.downKeycode = atoi (property); break;
-                case 4: config.resultCount = atoi (property); break;
+                case 4: config.acKeycode = atoi (property); break;
+                case 5: config.resultCount = atoi (property); break;
             }
         }
     }

@@ -6,6 +6,7 @@ static struct config {
     int padding;
     int upKeycode;
     int downKeycode;
+    int acKeycode;
     int resultCount;
 } config;
 

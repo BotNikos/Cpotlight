@@ -12,8 +12,10 @@
 #include "include/configParser.h"
 
 typedef struct winData {
-    WINDOW * win;
+    WINDOW *win;
+    WINDOW *inputWin;
     char userInput [128];
+    int inputPosition;
     int spKey;
 } winData;
 
@@ -26,6 +28,8 @@ void *parsingThread (void *data) {
     struct config *config = configParser ();
     int resultCount = config -> resultCount;
     int resultSize = 256;
+
+    WINDOW *inputWin = pWin -> inputWin;
 
     while (1 == 1) {
         char userInputCopy [128];
@@ -47,12 +51,27 @@ void *parsingThread (void *data) {
         }
 
         parse (userInputCopy, result, resultCount, resultSize);
-
         werase (pWin -> win);
+
+        char *prefix = strtok (userInputCopy, ";");
+        char *command = strtok (NULL, ";");
 
         if (pWin -> spKey == KEY_ENTER) {
             strcpy (pWin -> userInput, strtok (result [selectedResult], "\n"));
             break;
+
+        } else if (pWin -> spKey == config -> acKeycode) {
+
+            if (command)
+                sprintf (pWin -> userInput, "%s;%s", prefix, strtok (result [selectedResult], "\n"));
+            else
+                sprintf (pWin -> userInput, "%s", strtok (result [selectedResult], "\n"));
+
+            werase (pWin -> inputWin);
+            box (pWin -> inputWin, 0, 0);
+            mvwprintw (pWin -> inputWin, 1, 1, "%s", pWin -> userInput);
+            pWin -> inputPosition = strlen (pWin -> userInput);
+            wrefresh (pWin -> inputWin);
         }
 
         int findedResults = 0;
@@ -107,6 +126,7 @@ int main (void) {
     refresh ();
 
     WINDOW *inputWin = newwin (3, maxCol - config -> padding * 2, 3, config -> padding);
+    parsingWin.inputWin = inputWin;
     keypad (inputWin, TRUE);
     box (inputWin, 0, 0);
     wrefresh(inputWin);
@@ -116,10 +136,12 @@ int main (void) {
     pthread_create (&thread_id, NULL, parsingThread, (void *) &parsingWin);
 
     int ch;
-    int pos = 0;
+
+    parsingWin.inputPosition = 0;
+    int *pos = &parsingWin.inputPosition;
 
     while (1 == 1) {
-        wmove (inputWin, 1, pos + 1);
+        wmove (inputWin, 1, (*pos) + 1);
         ch = wgetch (inputWin);
 
         if (ch == KEY_ENTER || ch == '\r') {
@@ -127,15 +149,15 @@ int main (void) {
             break;
 
         } else if (isprint (ch)) {
-            parsingWin.userInput [pos++] = ch;
+            parsingWin.userInput [(*pos)++] = ch;
 
         } else if (ch == 27) {
             pthread_cancel (thread_id);
             strcpy (parsingWin.userInput, "");
             break;
 
-        } else if (ch == KEY_BACKSPACE && pos > 0) {
-            parsingWin.userInput [--pos] = '\0';
+        } else if (ch == KEY_BACKSPACE && (*pos) > 0) {
+            parsingWin.userInput [--(*pos)] = '\0';
             wclrtoeol(inputWin);
             box (inputWin, 0, 0);
 
@@ -144,6 +166,10 @@ int main (void) {
 
         } else if (ch == KEY_DOWN || ch == config -> downKeycode)
             parsingWin.spKey = KEY_DOWN;
+
+        else if (ch == config -> acKeycode) {
+            parsingWin.spKey = config -> acKeycode;
+        }
     }
 
     pthread_join (thread_id, 0);
