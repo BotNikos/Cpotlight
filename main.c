@@ -62,9 +62,14 @@ void *parsingThread (void *data) {
 
         } else if (pWin -> spKey == config -> acKeycode) {
 
-            if (command)
-                sprintf (pWin -> userInput, "%s;%s", prefix, strtok (result [selectedResult], "\n"));
-            else
+            if (command && strcmp (prefix, "f") == 0) {
+                int commandLen = strlen (command);
+                while (strcmp (&command [commandLen], "/") != 0)
+                    command [commandLen--] = '\0';
+
+                sprintf (pWin -> userInput, "%s;%s%s/", prefix, command, strtok (result [selectedResult], "\n"));
+
+            } else
                 sprintf (pWin -> userInput, "%s", strtok (result [selectedResult], "\n"));
 
             werase (pWin -> inputWin);

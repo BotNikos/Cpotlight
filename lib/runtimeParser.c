@@ -134,7 +134,7 @@ void parse (char *userInput, char *result [], int resultCount, int resultSize) {
     char userInputCopy [256];
     strcpy (userInputCopy, userInput);
 
-    char *prefix = strtok (userInput, ";");
+    char *prefix = strtok (userInputCopy, ";");
     char *command = strtok (NULL, ";");
 
     if (command) {
@@ -142,7 +142,7 @@ void parse (char *userInput, char *result [], int resultCount, int resultSize) {
             case 0: calculate (command, result [0], resultSize); break;
             case 1: translate (command, result [0]); break;
             case 2: case 3: case 4: case 5:
-            strcpy (result [0], userInputCopy); break;
+            strcpy (result [0], userInput); break;
             case 6: fileFinder (command, result, resultCount, resultSize); break;
 
             default: strcpy (result [0], "Wrong prefix");
