@@ -8,6 +8,12 @@ static struct config {
     int downKeycode;
     int acKeycode;
     int resultCount;
+    char fileManager [32];
+    char pdfReader [32];
+    char mp4Player [32];
+    char mkvPlayer [32];
+    char xlsxReader [32];
+    char docxReader [32];
 } config;
 
 struct config *configParser ();

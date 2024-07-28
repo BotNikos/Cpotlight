@@ -57,7 +57,9 @@ void *parsingThread (void *data) {
         char *command = strtok (NULL, ";");
 
         if (pWin -> spKey == KEY_ENTER) {
-            strcpy (pWin -> userInput, strtok (result [selectedResult], "\n"));
+            if (strcmp (prefix, "f") != 0)
+                strcpy (pWin -> userInput, strtok (result [selectedResult], "\n"));
+
             break;
 
         } else if (pWin -> spKey == config -> acKeycode) {

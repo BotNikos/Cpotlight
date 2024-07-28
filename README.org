@@ -6,19 +6,21 @@ This project is MacOs Spotlight analogue for linux
 written in C
 
 * Usage
-| prefix    | description                                         | example              |
-|-----------+-----------------------------------------------------+----------------------|
-| no prefix | Start application                                   | firefox              |
-|-----------+-----------------------------------------------------+----------------------|
-| b         | Start browser with opened link                      | b;google.com         |
-|-----------+-----------------------------------------------------+----------------------|
-| bs        | Search query in browser                             | bs;Best linux distro |
-|-----------+-----------------------------------------------------+----------------------|
-| yt        | YouTube query                                       | bs;Why rust is best  |
-|-----------+-----------------------------------------------------+----------------------|
-| c         | Calcuate                                            | c;1+3*4              |
-|-----------+-----------------------------------------------------+----------------------|
-| t         | Translate word (only russian and english supported) | t;hello              |
+| prefix    | description                                         | example                         |
+|-----------+-----------------------------------------------------+---------------------------------|
+| no prefix | Start application                                   | firefox                         |
+|-----------+-----------------------------------------------------+---------------------------------|
+| b         | Start browser with opened link                      | b;google.com                    |
+|-----------+-----------------------------------------------------+---------------------------------|
+| bs        | Search query in browser                             | bs;Best linux distro            |
+|-----------+-----------------------------------------------------+---------------------------------|
+| yt        | YouTube query                                       | bs;Why rust is best             |
+|-----------+-----------------------------------------------------+---------------------------------|
+| c         | Calcuate                                            | c;1+3*4                         |
+|-----------+-----------------------------------------------------+---------------------------------|
+| t         | Translate word (only russian and english supported) | t;hello                         |
+|-----------+-----------------------------------------------------+---------------------------------|
+| f         | Find file                                           | f;/home/user/Downloads/test.pdf |
 
 * Change application behaviour
 You can change the way Cpotlight works by editing

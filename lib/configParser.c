@@ -20,6 +20,12 @@ struct config *configParser () {
         "downKeycode",
         "acKeycode",
         "resultCount",
+        "fileManager",
+        ".pdf",
+        ".mp4",
+        ".mkv",
+        ".xlsx",
+        ".docx",
     };
 
     for (char str [64]; fgets (str, 64, configFile);) {
@@ -37,6 +43,13 @@ struct config *configParser () {
                 case 3: config.downKeycode = atoi (property); break;
                 case 4: config.acKeycode = atoi (property); break;
                 case 5: config.resultCount = atoi (property); break;
+                    // file formats
+                case 6: strcpy (config.fileManager, property); break;
+                case 7: strcpy (config.pdfReader, property); break;
+                case 8: strcpy (config.mp4Player, property); break;
+                case 9: strcpy (config.mkvPlayer, property); break;
+                case 10: strcpy (config.xlsxReader, property); break;
+                case 11: strcpy (config.docxReader, property); break;
             }
         }
     }

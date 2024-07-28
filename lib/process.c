@@ -7,9 +7,34 @@
 #include "../include/helper.h"
 #include "../include/configParser.h"
 
+void startFile (char *command) {
+    struct config *config = configParser ();
+    char commandCopy [128];
+    strcpy (commandCopy, command);
+
+    if (strstr (command, ".")) {
+        char *format = strtok (commandCopy, ".");
+        format = strtok (NULL, ".");
+
+        if (strcmp (format, "pdf") == 0)
+            execlp (config -> pdfReader, "", command, NULL);
+        else if (strcmp (format, "mp4"))
+            execlp (config -> mp4Player, "", command, NULL);
+        else if (strcmp (format, "mkv"))
+            execlp (config -> mkvPlayer, "", command, NULL);
+        else if (strcmp (format, "xlsx"))
+            execlp (config -> xlsxReader, "", command, NULL);
+        else if (strcmp (format, "docx"))
+            execlp (config -> docxReader, "", command, NULL);
+
+    } else
+        execlp (config -> fileManager, "", command, NULL);
+
+}
+
 void startProcess (char *userInput) {
     struct config *config = configParser ();
-    char *prefixes [] = {"b", "bs", "yt", "tg"};
+    char *prefixes [] = {"b", "bs", "yt", "tg", "f"};
 
     char *prefix = strtok (userInput, ";");
     char *command = strtok (NULL, ";");
@@ -31,6 +56,7 @@ void startProcess (char *userInput) {
             case 1: sprintf (link, "https://google.com/search?q=%s", command); break;
             case 2: sprintf (link, "https://youtube.com/results?search_query=%s", command); break;
             case 3: strcpy (link, "https://web.telegram.org"); break;
+            case 4: startFile (command); break;
         }
 
         if (strcmp (link, "") == 0)
