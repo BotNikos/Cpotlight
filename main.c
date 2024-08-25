@@ -11,6 +11,7 @@
 #include "include/runtimeParser.h"
 #include "include/configParser.h"
 
+
 typedef struct winData {
     WINDOW *win;
     WINDOW *inputWin;
@@ -24,7 +25,7 @@ void *parsingThread (void *data) {
     winData *pWin = (winData *) data;
 
     int selectedResult = 0;
-
+    
     struct config *config = configParser ();
     int resultCount = config -> resultCount;
     int resultSize = 256;
@@ -49,6 +50,7 @@ void *parsingThread (void *data) {
             result [i] = malloc (resultSize);
             strcpy (result [i], "");
         }
+
 
         parse (userInputCopy, result, resultCount, resultSize);
         werase (pWin -> win);

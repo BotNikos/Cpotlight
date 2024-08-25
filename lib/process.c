@@ -59,8 +59,8 @@ void startProcess (char *userInput) {
             case 4: startFile (command); break;
         }
 
-        if (strcmp (link, "") == 0)
-            execlp (userInput, NULL);
+        if (strcmp (link, "") == 0) 
+            execlp (userInput, "", NULL);
         else
             execlp (config -> browser, "", link, NULL);
             
