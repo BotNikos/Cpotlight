@@ -9,7 +9,7 @@ struct config *configParser () {
 
     char *home = getenv ("HOME");
     char cfgPath [128];
-    sprintf (cfgPath, "%s/Cpotlight/config.cfg", home);
+    sprintf (cfgPath, "%s/cpotlight/config.cfg", home);
 
     FILE *configFile = fopen (cfgPath, "r");
 
