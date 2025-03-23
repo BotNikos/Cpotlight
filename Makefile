@@ -1,4 +1,7 @@
+#Change this mess to a better place to live
+
 main: mainLib processLib helperLib runtimeParserLib configParserLib
+	etags -R # If you are not a user of the blessed Emacs, you can delete this line
 	clang -g -o cpotlight bin/main.o bin/process.o bin/runtimeParser.o bin/helper.o bin/configParser.o -lcurl -lncurses -lpthread
 
 mainLib: main.c bin
@@ -21,6 +24,3 @@ bin:
 
 clean: ./bin
 	rm -rf ./bin
-
-test: test.c
-	clang test.c -g -o test -lcurl -lncurses
