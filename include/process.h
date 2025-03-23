@@ -1,7 +1,7 @@
-#ifndef PROCESS_H 
-#define PROCESS_H
+#ifndef _PROCESS_H_
+#define _PROCESS_H_
 
-void startProcess (char *userInput);
+void startProcess ( char *userInput );
 
 #endif
- 
+

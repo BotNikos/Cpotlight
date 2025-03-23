@@ -11,178 +11,194 @@
 #include "include/runtimeParser.h"
 #include "include/configParser.h"
 
+#define _PROMT_ "Enter your command:"
 
-typedef struct winData {
-	WINDOW *win;
-	WINDOW *inputWin;
-	char userInput [128];
-	int inputPosition;
-	int spKey;
-} winData;
+struct winData {
+	WINDOW	*win;
+	WINDOW	*inputWin;
+	char	userInput [128];
+	int	inputPos;
+	int	spKey;
+};
 
-void *parsingThread (void *data) {
+void *parsingThread ( void *data )
+{
+	struct config	*config		= configParser ();
+	struct winData	*pWin		= ( struct winData * ) data;
+	WINDOW		*inputWin	= pWin -> inputWin;
+	char		userInputCopy [128];
+	char		*result [config->resultCount];
+	int		selectedResult	= 0;
+	int		resultSize	= 256;
+	int		findedResults;
 
-	winData *pWin = (winData *) data;
+	char		*prefix;
+	char		*command;
 
-	int selectedResult = 0;
-    
-	struct config *config = configParser ();
-	int resultCount = config -> resultCount;
-	int resultSize = 256;
+	while ( 1 ) {
+		strcpy ( userInputCopy, pWin->userInput );
 
-	WINDOW *inputWin = pWin -> inputWin;
+		usleep ( 10000 ); // 0.01 sec
 
-	while (1 == 1) {
-		char userInputCopy [128];
-		strcpy (userInputCopy, pWin -> userInput);
-
-		// wait when user complete typing
-		/* usleep(100000); // 0.1 sec */
-		usleep(10000); // 0.01 sec
-		if (strcmp (userInputCopy, pWin -> userInput) != 0) {
+		if ( strcmp ( userInputCopy, pWin->userInput ) != 0 ) {
 			selectedResult = 0;
 			continue;
 		}
 
-		char *result [resultCount];
-
-		for (int i = 0; i < resultCount; i++) {
-			result [i] = malloc (resultSize);
-			strcpy (result [i], "");
+		/*
+		   REVIEW:
+		   Change to one malloc by linear calculations instead of
+		   for-loop. Or maybe even to function call in whole loop?
+		 */
+		for ( int i = 0; i < config->resultCount; i++ ) {
+			result [i] = malloc ( resultSize );
+			strcpy ( result [i], "" );
 		}
 
+		parse ( userInputCopy, result, config->resultCount, resultSize );
+		werase ( pWin->win );
 
-		parse (userInputCopy, result, resultCount, resultSize);
-		werase (pWin -> win);
+		/*
+		   REVIEW:
+		   Maybe it's a good idea to change
+		   prefix and command vars to an
+		   array of 2 elements or a struct
+		*/
+		prefix	= strtok ( userInputCopy, ";" );
+		command = strtok ( NULL, ";" );
 
-		char *prefix = strtok (userInputCopy, ";");
-		char *command = strtok (NULL, ";");
-
-		if (pWin -> spKey == KEY_ENTER) {
-			if (strcmp (prefix, "f") != 0)
-				strcpy (pWin -> userInput, strtok (result [selectedResult], "\n"));
+		if ( pWin->spKey == KEY_ENTER ) {
+			if ( strcmp ( prefix, "f" ) != 0 ) { /* REVIEW: Nested if ?!  */
+				strcpy ( pWin->userInput, strtok ( result [selectedResult], "\n" ) );
+			}
 
 			break;
 
-		} else if (pWin -> spKey == config -> acKeycode) {
+		} else if ( pWin->spKey == config->acKeycode ) {
 
-			if (command && strcmp (prefix, "f") == 0) {
-				int commandLen = strlen (command);
-				while (strcmp (&command [commandLen], "/") != 0)
+			if ( command && strcmp ( prefix, "f" ) == 0 ) { /* REVIEW: Again?  */
+				int commandLen = strlen ( command );
+
+				/*  REVIEW: Change it to for-loop? */
+				while ( strcmp ( &command [commandLen], "/" ) != 0 ) {
 					command [commandLen--] = '\0';
+				}
 
-				sprintf (pWin -> userInput, "%s;%s%s/", prefix, command, strtok (result [selectedResult], "\n"));
+				/* REVIEW: A little bit difficult to read... */
+				sprintf ( pWin->userInput, "%s;%s%s/", prefix, command, strtok ( result [selectedResult], "\n" ) );
 
-			} else
-				sprintf (pWin -> userInput, "%s", strtok (result [selectedResult], "\n"));
+			} else {
+				/* REVIEW: Same as previous */
+				sprintf ( pWin -> userInput, "%s", strtok ( result [selectedResult], "\n" ) );
+			}
 
-			werase (pWin -> inputWin);
-			box (pWin -> inputWin, 0, 0);
-			mvwprintw (pWin -> inputWin, 1, 1, "%s", pWin -> userInput);
-			pWin -> inputPosition = strlen (pWin -> userInput);
-			wrefresh (pWin -> inputWin);
+			werase ( pWin->inputWin );
+			box ( pWin->inputWin, 0, 0 );
+			mvwprintw ( pWin->inputWin, 1, 1, "%s", pWin->userInput );
+			pWin->inputPos = strlen ( pWin->userInput );
+			wrefresh ( pWin->inputWin );
 		}
 
-		int findedResults = 0;
-		for (int i = 0; i < resultCount; i++) {
-			if (strcmp (result[i], "") != 0) {
+		findedResults = 0;
 
-				if (i == selectedResult)
-					wattron (pWin -> win, COLOR_PAIR(1));
+		for ( int i = 0; i < config->resultCount; i++ ) {
+			if ( strcmp ( result [i], "" ) != 0 ) {
 
-				mvwprintw (pWin -> win, i + 1, 1, "%i. %s", i + 1, result [i]);
+				if ( i == selectedResult ) {
+					wattron ( pWin->win, COLOR_PAIR ( 1 ) );
+				}
 
-				wattroff (pWin -> win, COLOR_PAIR(1));
+				mvwprintw ( pWin->win, i + 1, 1, "%i. %s", i + 1, result [i] );
+
+				wattroff ( pWin->win, COLOR_PAIR ( 1 ) );
 				findedResults++;
 			}
 
-			free (result [i]);
+			free ( result [i] );
 		}
 
-		if (pWin -> spKey == KEY_UP && selectedResult > 0) 
-			selectedResult -= 1;
-		else if (pWin -> spKey == KEY_DOWN && selectedResult < findedResults - 1)
-			selectedResult += 1;
+		if ( pWin->spKey == KEY_UP && selectedResult > 0 ) {
+			selectedResult--;
+		} else if ( pWin -> spKey == KEY_DOWN && selectedResult < findedResults - 1 ) {
+			selectedResult++;
+		}
 
-		pWin -> spKey = -1;
+		pWin->spKey = -1;
 
-		box (pWin -> win, 0, 0);
-		wrefresh (pWin -> win);
+		box ( pWin->win, 0, 0 );
+		wrefresh ( pWin->win );
 	}
 
 	return 0;
 }
 
-int main (void) {
-	setlocale(LC_ALL, "");
-
-	int maxCol, maxRow;
-	winData parsingWin;
-	memset(parsingWin.userInput, '\0', sizeof (parsingWin.userInput));
-
-	struct config *config = configParser ();
+int main ( void )
+{
+	int		ch;
+	int		maxCol;
+	int 		maxRow;
+	pthread_t	parsing_thr;
+	struct winData	parsingWin;
+	struct config	*config = configParser ();
+	WINDOW		*inputWin;
 
 	initscr ();
 	raw ();
 	nonl ();
 
 	start_color ();
-	init_pair (1, COLOR_BLACK, COLOR_WHITE);
+	init_pair ( 1, COLOR_BLACK, COLOR_WHITE );
 
-	getmaxyx (stdscr, maxRow, maxCol);
+	getmaxyx ( stdscr, maxRow, maxCol );
 
-	mvprintw (1, (maxCol / 2) - (strlen ("Enter your command:") / 2), "Enter your command:");
+	mvprintw ( 1, ( maxCol / 2 ) - ( strlen ( _PROMT_ ) / 2 ), _PROMT_ );
 	refresh ();
 
-	WINDOW *inputWin = newwin (3, maxCol - config -> padding * 2, 3, config -> padding);
-	parsingWin.inputWin = inputWin;
-	keypad (inputWin, TRUE);
-	box (inputWin, 0, 0);
-	wrefresh(inputWin);
+	inputWin = newwin ( 3, maxCol - config->padding * 2, 3, config->padding );
+	keypad ( inputWin, TRUE );
+	box ( inputWin, 0, 0 );
+	wrefresh ( inputWin );
 
-	pthread_t thread_id;
-	parsingWin.win = newwin (maxRow - 8, maxCol - config -> padding * 2, 7, config -> padding);
-	pthread_create (&thread_id, NULL, parsingThread, (void *) &parsingWin);
+	parsingWin.win		= newwin ( maxRow - 8, maxCol - config -> padding * 2, 7, config -> padding );
+	parsingWin.inputWin	= inputWin;
+	parsingWin.inputPos	= 0;
 
-	int ch;
+	pthread_create ( &parsing_thr, NULL, parsingThread, ( void * ) &parsingWin );
 
-	parsingWin.inputPosition = 0;
-	int *pos = &parsingWin.inputPosition;
+	while ( 1 ) {
+		wmove ( inputWin, 1, parsingWin.inputPos + 1 );
+		ch = wgetch ( inputWin );
 
-	while (1 == 1) {
-		wmove (inputWin, 1, (*pos) + 1);
-		ch = wgetch (inputWin);
-
-		if (ch == KEY_ENTER || ch == '\r') {
+		if ( ch == KEY_ENTER || ch == '\r' ) {
 			parsingWin.spKey = KEY_ENTER;
 			break;
 
-		} else if (isprint (ch)) {
-			parsingWin.userInput [(*pos)++] = ch;
+		} else if ( isprint ( ch ) ) {
+			parsingWin.userInput [parsingWin.inputPos++] = ch;
 
-		} else if (ch == 27) {
-			pthread_cancel (thread_id);
-			strcpy (parsingWin.userInput, "");
+		} else if ( ch == 27 ) {
+			pthread_cancel ( parsing_thr );
+			strcpy ( parsingWin.userInput, "" );
 			break;
 
-		} else if (ch == KEY_BACKSPACE && (*pos) > 0) {
-			parsingWin.userInput [--(*pos)] = '\0';
-			wclrtoeol(inputWin);
-			box (inputWin, 0, 0);
+		} else if ( ch == KEY_BACKSPACE && parsingWin.inputPos > 0 ) {
+			parsingWin.userInput [--parsingWin.inputPos] = '\0';
+			wclrtoeol ( inputWin );
+			box ( inputWin, 0, 0 );
 
-		} else if (ch == KEY_UP || ch == config -> upKeycode) {
+		} else if ( ch == KEY_UP || ch == config -> upKeycode ) {
 			parsingWin.spKey = KEY_UP;
 
-		} else if (ch == KEY_DOWN || ch == config -> downKeycode)
-			parsingWin.spKey = KEY_DOWN;
+		} else if ( ch == KEY_DOWN || ch == config -> downKeycode )
+		{ parsingWin.spKey = KEY_DOWN; }
 
-		else if (ch == config -> acKeycode) {
+		else if ( ch == config -> acKeycode ) {
 			parsingWin.spKey = config -> acKeycode;
 		}
 	}
 
-	pthread_join (thread_id, 0);
-	startProcess (parsingWin.userInput);
+	pthread_join ( parsing_thr, 0 );
+	startProcess ( parsingWin.userInput );
 
 	endwin ();
 

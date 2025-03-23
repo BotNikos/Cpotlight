@@ -10,145 +10,170 @@
 #include "../include/helper.h"
 
 
-size_t translateOutput (char *data, size_t size, size_t nmemb, void *response) {
+size_t translateOutput ( char *data, size_t size, size_t nmemb, void *response )
+{
 
-    if (strcmp ((char *) response, "") == 0) {
-        char *findStr = strstr (data, "Перевод");
-        findStr = strtok (findStr, ".");
+	if ( strcmp ( ( char * ) response, "" ) == 0 ) {
+		char *findStr = strstr ( data, "Перевод" );
+		findStr = strtok ( findStr, "." );
 
-        strcpy ((char *) response, (findStr) ? findStr : "Word not found");
-    }
+		strcpy ( ( char * ) response, ( findStr ) ? findStr : "Word not found" );
+	}
 
-    return nmemb;
+	return nmemb;
 }
 
-void translate (char *word, char *result) {
-    char link [64];
+void translate ( char *word, char *result )
+{
+	char link [64];
 
-    sprintf (link, "https://wooordhunt.ru/word/%s", word);
+	sprintf ( link, "https://wooordhunt.ru/word/%s", word );
 
-    curl_global_init(CURL_GLOBAL_ALL);
-    CURL *handle = curl_easy_init ();
-    curl_easy_setopt(handle, CURLOPT_URL, link);
-    curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, translateOutput);
-    curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)result);
+	curl_global_init ( CURL_GLOBAL_ALL );
+	CURL *handle = curl_easy_init ();
+	curl_easy_setopt ( handle, CURLOPT_URL, link );
+	curl_easy_setopt ( handle, CURLOPT_SSL_VERIFYPEER, 0 );
+	curl_easy_setopt ( handle, CURLOPT_WRITEFUNCTION, translateOutput );
+	curl_easy_setopt ( handle, CURLOPT_WRITEDATA, ( void * ) result );
 
-    CURLcode success = curl_easy_perform (handle);
+	CURLcode success = curl_easy_perform ( handle );
 
-    if (success != CURLE_OK)
-        strcpy (result, "Wrong input");
+	if ( success != CURLE_OK )
+	{ strcpy ( result, "Wrong input" ); }
 
-    curl_global_cleanup ();
+	curl_global_cleanup ();
 }
 
-void pathParse (char *userInput, char *result [], int resultCount, int resultSize) {
-    char findCmd [64] = "";
-    sprintf (findCmd, "ls -l /usr/bin | awk '{print $9}' | grep %s 2>&1", userInput);
+void pathParse ( char *userInput, char *result [], int resultCount, int resultSize )
+{
+	char findCmd [64] = "";
+	sprintf ( findCmd, "ls -l /usr/bin | awk '{print $9}' | grep %s 2>&1", userInput );
 
-    FILE *find = popen (findCmd, "r");
+	FILE *find = popen ( findCmd, "r" );
 
-    for (int i = 0; i < resultCount; i++) {
-        fgets (result [i], resultSize - 1, find);
+	for ( int i = 0; i < resultCount; i++ ) {
+		fgets ( result [i], resultSize - 1, find );
 
-        if (strstr (result [i], "grep")) {
-            strcpy (result [i], "Wrong command"); 
-            break;
-        }
-    }
+		if ( strstr ( result [i], "grep" ) ) {
+			strcpy ( result [i], "Wrong command" );
+			break;
+		}
+	}
 
-    pclose (find);
+	pclose ( find );
 }
 
-void calculate (char *command, char *result, int resultSize) {
-    char calcCmd [32];
-    sprintf (calcCmd, "awk \"BEGIN {print %s}\" 2>&1", command);
+void calculate ( char *command, char *result, int resultSize )
+{
+	char calcCmd [32];
+	sprintf ( calcCmd, "awk \"BEGIN {print %s}\" 2>&1", command );
 
-    FILE *calculations = popen (calcCmd, "r");
-    fgets(result, resultSize - 1, calculations);
+	FILE *calculations = popen ( calcCmd, "r" );
+	fgets ( result, resultSize - 1, calculations );
 
-    if (strstr (result, "awk"))
-        strcpy (result, "Calculations error");
+	if ( strstr ( result, "awk" ) )
+	{ strcpy ( result, "Calculations error" ); }
 
-    pclose (calculations);
+	pclose ( calculations );
 }
 
-char *pathConcat (char *nodes [], int nodesCount) {
-    char *path = (char *) malloc (128);
+char *pathConcat ( char *nodes [], int nodesCount )
+{
+	char *path = ( char * ) malloc ( 128 );
 
-    strcpy (path, "/");
-    for (int i = 0; i < nodesCount - 1; i++) {
-        strcat (path, nodes [i]);
-        strcat (path, "/");
-    }
+	strcpy ( path, "/" );
 
-    return path;
+	for ( int i = 0; i < nodesCount - 1; i++ ) {
+		strcat ( path, nodes [i] );
+		strcat ( path, "/" );
+	}
+
+	return path;
 }
 
-void fileFinder (char *command, char *result [], int resultCount, int resultSize) {
-    char commandCopy [128];
-    strcpy (commandCopy, command);
+void fileFinder ( char *command, char *result [], int resultCount, int resultSize )
+{
+	char commandCopy [128];
+	strcpy ( commandCopy, command );
 
-    char *nodes [32];
-    int nodesCount = 0;
+	char *nodes [32];
+	int nodesCount = 0;
 
-    char *lastNode = strtok (commandCopy, "/");
-    while (lastNode != NULL) {
-        nodes [nodesCount] = lastNode; 
-        lastNode = strtok (NULL, "/");
-        nodesCount++;
-    }
+	char *lastNode = strtok ( commandCopy, "/" );
 
-    char *lsPath = pathConcat (nodes, nodesCount);
-    bool slashEnd = (strcmp (&command [strlen (command) - 1], "/") == 0) ? true : false;
+	while ( lastNode != NULL ) {
+		nodes [nodesCount] = lastNode;
+		lastNode = strtok ( NULL, "/" );
+		nodesCount++;
+	}
 
-    struct dirent **dir;
-    int dirCount;
+	char *lsPath = pathConcat ( nodes, nodesCount );
+	bool slashEnd = ( strcmp ( &command [strlen ( command ) - 1], "/" ) == 0 ) ? true : false;
 
-    dirCount = (slashEnd) ? scandir (command, &dir, 0, alphasort) : scandir (lsPath, &dir, 0, alphasort);
+	struct dirent **dir;
+	int dirCount;
 
-    if (dirCount > 0) {
-        
-        int position = 0;
-        for (int i = 0; i < resultCount && i < dirCount; i++) {
-            char *dirName = dir [i] -> d_name;
+	dirCount = ( slashEnd ) ? scandir ( command, &dir, 0, alphasort ) : scandir ( lsPath, &dir, 0, alphasort );
 
-            if (slashEnd)
-                strcpy (result [i], dir [i] -> d_name);
+	if ( dirCount > 0 ) {
 
-            else if (strstr (dirName, nodes [nodesCount - 1])) {
-                strcpy (result [position], dir [i] -> d_name);
-                position ++;
-            }
+		int position = 0;
 
-            free (dir [i]);
-        }
+		for ( int i = 0; i < resultCount && i < dirCount; i++ ) {
+			char *dirName = dir [i] -> d_name;
 
-        free (dir);
+			if ( slashEnd )
+			{ strcpy ( result [i], dir [i] -> d_name ); }
 
-    } else
-        strcpy (result [0], "Wrong directory");
+			else if ( strstr ( dirName, nodes [nodesCount - 1] ) ) {
+				strcpy ( result [position], dir [i] -> d_name );
+				position ++;
+			}
+
+			free ( dir [i] );
+		}
+
+		free ( dir );
+
+	} else
+	{ strcpy ( result [0], "Wrong directory" ); }
 }
 
-void parse (char *userInput, char *result [], int resultCount, int resultSize) {
-    char *prefixes [] = {"c", "t", "b", "bs", "yt", "tg", "f"};
-    char userInputCopy [256];
-    strcpy (userInputCopy, userInput);
+void parse ( char *userInput, char *result [], int resultCount, int resultSize )
+{
+	char *prefixes [] = {"c", "t", "b", "bs", "yt", "tg", "f"};
+	char userInputCopy [256];
+	strcpy ( userInputCopy, userInput );
 
-    char *prefix = strtok (userInputCopy, ";");
-    char *command = strtok (NULL, ";");
+	char *prefix = strtok ( userInputCopy, ";" );
+	char *command = strtok ( NULL, ";" );
 
-    if (command) {
-        switch (arrFind (prefix, prefixes, sizeof (prefixes) / 8)) {
-            case 0: calculate (command, result [0], resultSize); break;
-            case 1: translate (command, result [0]); break;
-            case 2: case 3: case 4: case 5:
-            strcpy (result [0], userInput); break;
-            case 6: fileFinder (command, result, resultCount, resultSize); break;
+	if ( command ) {
+		switch ( arrFind ( prefix, prefixes, sizeof ( prefixes ) / 8 ) ) {
+			case 0:
+				calculate ( command, result [0], resultSize );
+				break;
 
-            default: strcpy (result [0], "Wrong prefix");
-        }
-    } else if (prefix)
-        pathParse (userInput, result, resultCount, resultSize); 
-    else
-        strcpy (result [0], "Waiting for input");
+			case 1:
+				translate ( command, result [0] );
+				break;
+
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+				strcpy ( result [0], userInput );
+				break;
+
+			case 6:
+				fileFinder ( command, result, resultCount, resultSize );
+				break;
+
+			default:
+				strcpy ( result [0], "Wrong prefix" );
+		}
+	} else if ( prefix )
+	{ pathParse ( userInput, result, resultCount, resultSize ); }
+	else
+	{ strcpy ( result [0], "Waiting for input" ); }
 }
